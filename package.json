@@ -1,0 +1,38 @@
+{
+  "name": "supabase-antd-site",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "oxlint",
+    "preview": "vite preview",
+    "format": "prettier --write \"src/**/*.{jsx,js,css}\"",
+    "format:check": "prettier --check \"src/**/*.{jsx,js,css}\""
+  },
+  "dependencies": {
+    "@ant-design/icons": "^6.3.2",
+    "@ckeditor/ckeditor5-build-classic": "^41.4.2",
+    "@ckeditor/ckeditor5-react": "^11.2.0",
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
+    "@supabase/supabase-js": "^2.111.0",
+    "antd": "^6.5.3",
+    "bcryptjs": "^3.0.3",
+    "ckeditor5": "^48.3.1",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "react-router-dom": "^7.18.2"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "@vitejs/plugin-react": "^6.0.4",
+    "oxlint": "^1.75.0",
+    "prettier": "^3.9.6",
+    "typescript": "^7.0.2",
+    "vite": "^8.2.0"
+  }
+}

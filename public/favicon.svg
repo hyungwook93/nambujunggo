@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!-- 30년 전통의 깊은 황토/적색 낙관 배경 -->
+  <rect width="32" height="32" rx="5" fill="#c2410c"/>
+  
+  <!-- 텍스트 배치 (가장 굵은 고딕 계열로 가독성 확보) -->
+  <text x="16" y="14" font-family="system-ui, -apple-system, sans-serif" font-size="11" font-weight="900" fill="#ffffff" text-anchor="middle">남부</text>
+  <text x="16" y="26" font-family="system-ui, -apple-system, sans-serif" font-size="11" font-weight="900" fill="#ffffff" text-anchor="middle">중고</text>
+</svg>

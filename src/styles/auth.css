@@ -1,0 +1,25 @@
+/* ── Signup Page ── */
+.signup-page {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 24px 0 48px;
+  min-height: calc(100vh - 64px - 70px);
+}
+
+.signup-card {
+  width: 100%;
+  max-width: 600px;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1) !important;
+}
+
+.signup-header {
+  margin-bottom: 8px;
+}
+
+@media (max-width: 768px) {
+  .signup-card {
+    margin: 0 8px;
+  }
+}

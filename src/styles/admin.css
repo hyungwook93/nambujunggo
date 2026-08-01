@@ -1,0 +1,71 @@
+/* ── Admin Page ── */
+.admin-page {
+  background: #fff;
+  border-radius: 12px;
+  padding: 28px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.admin-page-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.admin-section-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  background: #f8f9ff;
+  border-radius: 8px;
+  border-left: 4px solid #1677ff;
+}
+
+.admin-tabs .ant-tabs-content-holder {
+  padding: 8px 0 0;
+}
+
+.admin-table .ant-table {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.admin-table .ant-table-thead > tr > th {
+  background: #fafafa !important;
+  font-weight: 600;
+}
+
+/* 배너 추가 카드 */
+.add-banner-card {
+  border-radius: 8px !important;
+  border: 1px dashed #1677ff !important;
+  background: #f0f5ff !important;
+  margin-bottom: 8px;
+}
+
+/* URL 미리보기 */
+.preview-box {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px;
+  background: #fff;
+  border-radius: 6px;
+  border: 1px solid #eee;
+}
+
+.url-preview-img {
+  width: 100%;
+  max-height: 160px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+@media (max-width: 768px) {
+  .admin-page {
+    padding: 16px;
+  }
+}

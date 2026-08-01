@@ -1,0 +1,145 @@
+/* ── Dashboard ── */
+.dashboard-container {
+  width: 100%;
+}
+
+/* 배너 카드 */
+.banner-card {
+  overflow: hidden;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1) !important;
+  border: none !important;
+}
+
+.banner-loading,
+.banner-empty {
+  height: 420px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+/* 캐러셀 */
+.carousel-slide {
+  position: relative;
+  height: 420px;
+  overflow: hidden;
+}
+
+.carousel-img {
+  width: 100%;
+  height: 420px;
+  object-fit: cover;
+  display: block;
+}
+
+.carousel-caption {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 32px 40px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, transparent 100%);
+}
+
+/* 캐러셀 도트 스타일 */
+.ant-carousel .slick-dots li button {
+  background: rgba(255, 255, 255, 0.6) !important;
+  width: 24px !important;
+  height: 4px !important;
+  border-radius: 2px !important;
+}
+
+.ant-carousel .slick-dots li.slick-active button {
+  background: #fff !important;
+  width: 36px !important;
+}
+
+/* 하단 그리드 카드 */
+.grid-card {
+  border-radius: 12px !important;
+  border: 1px solid rgba(0, 0, 0, 0.06) !important;
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease !important;
+  cursor: pointer;
+}
+
+.grid-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12) !important;
+}
+
+.grid-card-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 16px;
+  gap: 12px;
+  text-align: center;
+}
+
+.grid-card-icon {
+  font-size: 36px;
+  color: #fa8c16;
+  margin-bottom: 12px;
+}
+
+/* ── Carousel Arrows: 완전 커스텀 ── */
+.carousel-custom-arrow {
+  position: absolute !important;
+  width: 60px !important;
+  top: 0 !important;
+  bottom: 0 !important;
+  background: transparent !important;
+  z-index: 10;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.carousel-custom-prev {
+  left: 0 !important;
+}
+
+.carousel-custom-next {
+  right: 0 !important;
+}
+
+.carousel-custom-arrow:hover {
+  background: rgba(0, 0, 0, 0.18) !important;
+}
+
+.carousel-custom-icon {
+  font-size: 32px !important;
+  color: #ccc !important;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+}
+
+/* 기존 antd/slick 화살표 찌꺼기 원천 차단 */
+.ant-carousel .slick-arrow.slick-prev,
+.ant-carousel .slick-arrow.slick-next {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+@media (max-width: 768px) {
+  .carousel-slide,
+  .carousel-img {
+    height: 220px;
+  }
+  .banner-loading,
+  .banner-empty {
+    height: 220px;
+  }
+  .grid-card-content {
+    padding: 20px 10px;
+  }
+}

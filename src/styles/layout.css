@@ -1,0 +1,148 @@
+/* ── CSS Reset & Base ── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Noto Sans KR', 'Inter', sans-serif;
+  background: #f0f2f5;
+}
+
+/* ── Layout ── */
+.app-layout {
+  min-height: 100vh;
+}
+
+/* ── Header ── */
+.app-header-wrapper {
+  background: #001529 !important;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
+  height: 64px !important;
+  line-height: 64px !important;
+  padding: 0 !important;
+}
+
+.header-inner {
+  display: flex;
+  align-items: center;
+  height: 64px;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 24px;
+  gap: 16px;
+}
+
+.header-logo {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.logo-text {
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.5px;
+}
+
+.header-menu {
+  background: transparent !important;
+  border-bottom: none !important;
+  line-height: 64px !important;
+}
+
+/* 메뉴 호버 애니메이션 */
+.header-menu .ant-menu-item,
+.header-menu .ant-menu-submenu-title {
+  width: 120px;
+  text-align: center;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease !important;
+}
+
+/* 폰트/아이콘 색상 (하얀색 고정) */
+.header-menu .ant-menu-item,
+.header-menu .ant-menu-submenu-title,
+.header-menu .ant-menu-item .ant-menu-title-content,
+.header-menu .ant-menu-submenu-title .ant-menu-title-content,
+.header-menu .ant-menu-item-icon {
+  color: #ffffff !important;
+}
+
+.header-menu .ant-menu-submenu-title:hover,
+.header-menu .ant-menu-item:hover {
+  background: rgba(255, 255, 255, 0.15) !important;
+  border-radius: 6px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  margin-left: auto;
+  gap: 8px;
+}
+
+/* ── Content ── */
+.app-content {
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+  min-height: calc(100vh - 64px - 70px);
+}
+
+/* ── Footer ── */
+.app-footer {
+  text-align: center;
+  background: #001529 !important;
+  padding: 20px 24px !important;
+}
+
+/* ── Page Layout (Common) ── */
+.page-layout-container {
+  width: 100%;
+  min-height: calc(100vh - 200px);
+}
+
+.page-layout-header {
+  background: #fafafa;
+  border-bottom: 1px solid #f0f0f0;
+  padding: 48px 0;
+  text-align: center;
+}
+
+.page-layout-header-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.page-layout-content {
+  background: #f5f5f5;
+  padding: 40px 0 80px;
+}
+
+.page-layout-content-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .header-inner {
+    padding: 0 12px;
+    gap: 8px;
+  }
+  .logo-text {
+    font-size: 16px;
+  }
+  .app-content {
+    padding: 12px;
+  }
+}
