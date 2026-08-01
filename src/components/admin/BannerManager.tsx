@@ -103,10 +103,13 @@ export default function BannerManager({ onBannersChange }: { onBannersChange: (b
     }
   };
 
-  const handleDelete = async (id: number) => {
-    const { error } = await supabase.from('dashboard_banners').delete().eq('id', id);
-    if (error) message.error('삭제 실패: ' + error.message);
-    else {
+  const handleDelete = async (id: string) => {
+    const { data, error } = await supabase.from('dashboard_banners').delete().eq('id', id).select();
+    if (error) {
+      message.error('삭제 실패: ' + error.message);
+    } else if (data && data.length === 0) {
+      message.error('삭제 권한이 없거나 이미 삭제된 배너입니다. (Supabase RLS 정책을 확인해주세요)');
+    } else {
       message.success('배너가 삭제되었습니다.');
       fetchBanners();
     }
