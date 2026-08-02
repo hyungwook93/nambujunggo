@@ -400,7 +400,7 @@ function AppInner() {
             주소: 광주광역시 남구 대남대로 302 (오시는 길) | 대표전화: 062-351-9007
           </Text>
           <br />
-          <Text style={{ color: '#ddd' }}>운영시간: 평일 오전 9시 ~ 오후 6시 (토/일 휴무)</Text>
+          <Text style={{ color: '#ddd' }}>운영시간: 평일 오전 9시 ~ 오후 6시 (토 오전 9시 ~ 오후 4시 / 일 휴무)</Text>
           <div style={{ margin: '16px 0' }}>
             <Space size="large">
               <a href="#" style={{ color: '#fff' }}>
