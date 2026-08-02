@@ -56,9 +56,9 @@ export default function UsedProductList() {
   });
 
   return (
-    <div style={{ maxWidth: 800, margin: '0 auto', padding: '16px 0' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-        <Space>
+    <div style={{ padding: '16px 0' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 16 }}>
+        <Space wrap>
           <CommonCodeSelector 
             parentCode="CATEGORY" 
             placeholder="카테고리 전체" 
@@ -74,13 +74,12 @@ export default function UsedProductList() {
             style={{ width: 200 }} 
           />
         </Space>
-        <br />
         {isManagerOrAdmin && (
-          <Space>
+          <div>
             <Button type="primary" icon={<EditOutlined />} onClick={() => navigate('/used/sell/write')}>
               상품 등록
             </Button>
-          </Space>
+          </div>
         )}
       </div>
 
