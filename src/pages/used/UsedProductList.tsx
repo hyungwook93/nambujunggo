@@ -74,6 +74,7 @@ export default function UsedProductList() {
             style={{ width: 200 }} 
           />
         </Space>
+        <br />
         {isManagerOrAdmin && (
           <Space>
             <Button type="primary" icon={<EditOutlined />} onClick={() => navigate('/used/sell/write')}>
