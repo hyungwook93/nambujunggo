@@ -13,7 +13,7 @@
 
 .banner-loading,
 .banner-empty {
-  height: 420px;
+  height: 220px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -23,13 +23,13 @@
 /* 캐러셀 */
 .carousel-slide {
   position: relative;
-  height: 420px;
+  height: 220px;
   overflow: hidden;
 }
 
 .carousel-img {
   width: 100%;
-  height: 420px;
+  height: 220px;
   object-fit: cover;
   display: block;
 }

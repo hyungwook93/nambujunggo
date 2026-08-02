@@ -192,26 +192,18 @@ export default function UsedProductForm({ isEdit = false }: { isEdit?: boolean }
   };
 
   return (
-    <div style={{ padding: '16px 0', backgroundColor: '#f0f2f5', minHeight: '100vh' }}>
-      <div style={{ maxWidth: 1000, margin: '0 auto', display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
+    <div style={{ padding: '16px', backgroundColor: '#f0f2f5', minHeight: '100vh' }}>
+      <div style={{ maxWidth: 640, margin: '0 auto', marginBottom: 16, display: 'flex', alignItems: 'center' }}>
         <Title level={4} style={{ margin: 0 }}>{isEdit ? '중고상품 수정' : '중고상품 등록'}</Title>
-        <Radio.Group value={viewMode} onChange={(e) => setViewMode(e.target.value)}>
-          <Radio.Button value="PC"><DesktopOutlined /> PC 뷰</Radio.Button>
-          <Radio.Button value="MOBILE"><MobileOutlined /> 모바일 뷰</Radio.Button>
-        </Radio.Group>
       </div>
 
-      {/* 모바일 뷰 래퍼 */}
       <div style={{
-        maxWidth: viewMode === 'MOBILE' ? 414 : 1000,
+        maxWidth: 640,
         margin: '0 auto',
         backgroundColor: '#fff',
-        borderRadius: viewMode === 'MOBILE' ? 24 : 8,
-        boxShadow: viewMode === 'MOBILE' ? '0 10px 30px rgba(0,0,0,0.1)' : 'none',
-        padding: viewMode === 'MOBILE' ? '32px 16px' : '24px',
-        border: viewMode === 'MOBILE' ? '8px solid #333' : '1px solid #d9d9d9',
-        minHeight: viewMode === 'MOBILE' ? 800 : 'auto',
-        transition: 'all 0.3s ease'
+        borderRadius: 12,
+        padding: '20px 16px',
+        border: '1px solid #e8e8e8',
       }}>
         <Form form={form} layout="vertical" onFinish={handleFinish} initialValues={{ status: 'A' }}>
           <Form.Item label="제목" name="title" rules={[{ required: true, message: '제목을 입력해주세요.' }]}>
@@ -219,7 +211,6 @@ export default function UsedProductForm({ isEdit = false }: { isEdit?: boolean }
           </Form.Item>
 
           <Form.Item label="카테고리" name="category_code" rules={[{ required: true, message: '카테고리를 선택해주세요.' }]}>
-            {/* 공통코드 부모가 'CATEGORY'로 설정됨 */}
             <CommonCodeSelector parentCode="CATEGORY" placeholder="품목 선택" />
           </Form.Item>
 
@@ -234,36 +225,33 @@ export default function UsedProductForm({ isEdit = false }: { isEdit?: boolean }
 
           <Form.Item label="상품 사진 (첫번째 사진이 대표이미지가 됩니다)">
             <Space direction="vertical" style={{ width: '100%' }}>
-              {/* 모바일 뷰에서는 카메라 촬영 버튼도 노출 유도 */}
-              {viewMode === 'MOBILE' && (
-                <div style={{ position: 'relative', overflow: 'hidden', display: 'inline-block' }}>
-                  <Button icon={<CameraOutlined />} block>카메라로 촬영하기</Button>
-                  <input 
-                    type="file" 
-                    accept="image/*" 
-                    capture="environment" 
-                    onChange={(e) => {
-                      if (e.target.files && e.target.files[0]) {
-                        const file = e.target.files[0];
-                        // Antd Upload 포맷에 맞춤
-                        setFileList([...fileList, {
-                          uid: String(Date.now()),
-                          name: file.name,
-                          status: 'done',
-                          originFileObj: file,
-                          url: URL.createObjectURL(file)
-                        }]);
-                      }
-                    }}
-                    style={{ position: 'absolute', top: 0, right: 0, minWidth: '100%', minHeight: '100%', fontSize: 100, textAlign: 'right', opacity: 0, outline: 'none', background: 'white', cursor: 'inherit', display: 'block' }}
-                  />
-                </div>
-              )}
-              
+              {/* 카메라 촬영 버튼 (모바일 브라우저에서 후면 카메라 직접 실행) */}
+              <div style={{ position: 'relative', overflow: 'hidden', display: 'inline-block' }}>
+                <Button icon={<CameraOutlined />}>카메라로 촬영하기</Button>
+                <input
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  onChange={(e) => {
+                    if (e.target.files && e.target.files[0]) {
+                      const file = e.target.files[0];
+                      setFileList([...fileList, {
+                        uid: String(Date.now()),
+                        name: file.name,
+                        status: 'done',
+                        originFileObj: file,
+                        url: URL.createObjectURL(file)
+                      }]);
+                    }
+                  }}
+                  style={{ position: 'absolute', top: 0, right: 0, minWidth: '100%', minHeight: '100%', fontSize: 100, textAlign: 'right', opacity: 0, outline: 'none', background: 'white', cursor: 'inherit', display: 'block' }}
+                />
+              </div>
+
               <Upload {...uploadProps}>
                 <div>
                   <UploadOutlined />
-                  <div style={{ marginTop: 8 }}>사진 업로드</div>
+                  <div style={{ marginTop: 8 }}>갤러리에서 선택</div>
                 </div>
               </Upload>
             </Space>
@@ -285,7 +273,7 @@ export default function UsedProductForm({ isEdit = false }: { isEdit?: boolean }
             />
           </Form.Item>
 
-          <Form.Item style={{ marginTop: 32 }}>
+          <Form.Item style={{ marginTop: 24 }}>
             <Space style={{ width: '100%', justifyContent: 'flex-end' }}>
               <Button onClick={() => navigate('/used/sell')}>취소</Button>
               <Button type="primary" htmlType="submit" loading={loading} size="large">

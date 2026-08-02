@@ -14,25 +14,31 @@ body {
 /* ── Layout ── */
 .app-layout {
   min-height: 100vh;
+  max-width: 480px;
+  margin: 0 auto;
+  position: relative;
+  background: #fff;
+  box-shadow: 0 0 20px rgba(0,0,0,0.08);
 }
 
 /* ── Header ── */
 .app-header-wrapper {
   background: #001529 !important;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
-  height: 64px !important;
-  line-height: 64px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  height: 56px !important;
+  line-height: 56px !important;
   padding: 0 !important;
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
 .header-inner {
   display: flex;
   align-items: center;
-  height: 64px;
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 0 24px;
-  gap: 16px;
+  height: 56px;
+  padding: 0 12px;
+  gap: 8px;
 }
 
 .header-logo {
@@ -42,7 +48,7 @@ body {
 }
 
 .logo-text {
-  font-size: 20px;
+  font-size: 16px;
   font-weight: 700;
   color: #fff;
   letter-spacing: -0.5px;
@@ -51,17 +57,18 @@ body {
 .header-menu {
   background: transparent !important;
   border-bottom: none !important;
-  line-height: 64px !important;
+  line-height: 56px !important;
 }
 
 /* 메뉴 호버 애니메이션 */
 .header-menu .ant-menu-item,
 .header-menu .ant-menu-submenu-title {
-  width: 120px;
   text-align: center;
   transition:
     background 0.2s ease,
     color 0.2s ease !important;
+  padding: 0 10px !important;
+  min-width: unset !important;
 }
 
 /* 폰트/아이콘 색상 (하얀색 고정) */
@@ -71,6 +78,7 @@ body {
 .header-menu .ant-menu-submenu-title .ant-menu-title-content,
 .header-menu .ant-menu-item-icon {
   color: #ffffff !important;
+  font-size: 13px !important;
 }
 
 .header-menu .ant-menu-submenu-title:hover,
@@ -84,23 +92,21 @@ body {
   align-items: center;
   flex-shrink: 0;
   margin-left: auto;
-  gap: 8px;
+  gap: 6px;
 }
 
 /* ── Content ── */
 .app-content {
-  padding: 24px;
-  max-width: 1400px;
-  margin: 0 auto;
+  padding: 12px;
   width: 100%;
-  min-height: calc(100vh - 64px - 70px);
+  min-height: calc(100vh - 56px - 130px);
 }
 
 /* ── Footer ── */
 .app-footer {
-  text-align: center;
+  text-align: left;
   background: #001529 !important;
-  padding: 20px 24px !important;
+  padding: 16px 12px !important;
 }
 
 /* ── Page Layout (Common) ── */
@@ -112,37 +118,20 @@ body {
 .page-layout-header {
   background: #fafafa;
   border-bottom: 1px solid #f0f0f0;
-  padding: 48px 0;
-  text-align: center;
+  padding: 16px 0;
 }
 
 .page-layout-header-inner {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 24px;
+  max-width: 100%;
+  padding: 0 12px;
 }
 
 .page-layout-content {
   background: #f5f5f5;
-  padding: 40px 0 80px;
+  padding: 12px 0 40px;
 }
 
 .page-layout-content-inner {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 24px;
-}
-
-/* ── Responsive ── */
-@media (max-width: 768px) {
-  .header-inner {
-    padding: 0 12px;
-    gap: 8px;
-  }
-  .logo-text {
-    font-size: 16px;
-  }
-  .app-content {
-    padding: 12px;
-  }
+  max-width: 100%;
+  padding: 0 12px;
 }
