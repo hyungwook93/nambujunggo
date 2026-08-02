@@ -227,7 +227,6 @@ export default function UsedProductForm({ isEdit = false }: { isEdit?: boolean }
             <Space direction="vertical" style={{ width: '100%' }}>
               {/* 카메라 촬영 버튼 (모바일 브라우저에서 후면 카메라 직접 실행) */}
               <div style={{ position: 'relative', overflow: 'hidden', display: 'inline-block' }}>
-                <Button icon={<CameraOutlined />}>카메라로 촬영하기</Button>
                 <input
                   type="file"
                   accept="image/*"

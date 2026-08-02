@@ -34,11 +34,12 @@ body {
 }
 
 .header-inner {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
   height: 56px;
-  padding: 0 12px;
-  gap: 8px;
+  padding: 0 8px;
+  gap: 0;
 }
 
 .header-logo {

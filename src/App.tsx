@@ -11,6 +11,7 @@ import {
   Avatar,
   Dropdown,
   Result,
+  Drawer,
 } from 'antd';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import {
@@ -53,6 +54,7 @@ function AppInner() {
   const [loginLoading, setLoginLoading] = useState(false);
   const [passwordModalOpen, setPasswordModalOpen] = useState(false);
   const [siteMenus, setSiteMenus] = useState([]);
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const { message, modal } = AntApp.useApp();
 
   const isAdmin = currentUser?.isAdmin ?? false;
@@ -326,51 +328,65 @@ function AppInner() {
     <Layout className="app-layout">
       <Header
         className="app-header-wrapper"
-        style={{
-          background: '#001529 !important',
-          padding: 0,
-          position: 'sticky',
-          top: 0,
-          zIndex: 100,
-        }}
+        style={{ background: '#fa8c16', padding: 0, position: 'sticky', top: 0, zIndex: 100 }}
       >
-        <div className="header-inner">
-          <div
-            className="header-logo"
-            onClick={() => navigate('/')}
-            style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
-          >
-            <img
-              src={mainLogo}
-              alt="남부중고알뜰매장"
-              style={{ height: 32, marginRight: 8, objectFit: 'contain' }}
+        <div className="header-inner" style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'center' }}>
+          {/* 왼쪽: 햄버거 버튼 */}
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <Button
+              type="text"
+              icon={<MenuOutlined style={{ fontSize: 22, color: '#fff' }} />}
+              onClick={() => setDrawerOpen(true)}
+              style={{ background: 'transparent', border: 'none', padding: '4px 8px' }}
             />
           </div>
 
-          <Menu
-            theme="dark"
-            mode="horizontal"
-            selectedKeys={[currentPage]}
-            onClick={(e) => {
-              const clickedItem = siteMenus.find(
-                (m) => m.path === e.key || `menu-${m.id}` === e.key
-              );
+          {/* 가운데: 로고 */}
+          <div
+            onClick={() => navigate('/')}
+            style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          >
+            <img src={mainLogo} alt="남부중고알뜰매장" style={{ height: 30, objectFit: 'contain' }} />
+          </div>
 
-              if ((e.key === '/admin' || clickedItem?.requires_admin) && !isAdmin) {
-                message.warning('관리자 권한이 필요합니다.');
-                return;
-              }
-              navigate(e.key);
-            }}
-            items={navItems}
-            className="header-menu"
-            triggerSubMenuAction="hover"
-            style={{ flex: 1, minWidth: 0 }}
-          />
-
-          <div className="header-right">{headerRight}</div>
+          {/* 오른쪽: 로그인/유저 */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+            {headerRight}
+          </div>
         </div>
       </Header>
+
+      {/* 좌측 슬라이드 드로어 메뉴 */}
+      <Drawer
+        title={
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <img src={mainLogo} alt="로고" style={{ height: 24, objectFit: 'contain' }} />
+          </div>
+        }
+        placement="left"
+        onClose={() => setDrawerOpen(false)}
+        open={drawerOpen}
+        width={260}
+        styles={{ body: { padding: 0 } }}
+      >
+        <Menu
+          mode="inline"
+          selectedKeys={[currentPage]}
+          onClick={(e) => {
+            const clickedItem = siteMenus.find(
+              (m) => m.path === e.key || `menu-${m.id}` === e.key
+            );
+            if ((e.key === '/admin' || clickedItem?.requires_admin) && !isAdmin) {
+              message.warning('관리자 권한이 필요합니다.');
+              return;
+            }
+            navigate(e.key);
+            setDrawerOpen(false);
+          }}
+          items={navItems}
+          style={{ border: 'none', fontSize: 15 }}
+        />
+      </Drawer>
 
       <Content className="app-content">{renderContent()}</Content>
 
