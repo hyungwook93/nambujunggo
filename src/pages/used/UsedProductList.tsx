@@ -58,7 +58,6 @@ export default function UsedProductList() {
   return (
     <div style={{ maxWidth: 800, margin: '0 auto', padding: '16px 0' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-        <Title level={4} style={{ margin: 0 }}>중고상품 목록</Title>
         <Space>
           <CommonCodeSelector 
             parentCode="CATEGORY" 
@@ -74,12 +73,14 @@ export default function UsedProductList() {
             onChange={(e) => setSearchText(e.target.value)}
             style={{ width: 200 }} 
           />
-          {isManagerOrAdmin && (
+        </Space>
+        {isManagerOrAdmin && (
+          <Space>
             <Button type="primary" icon={<EditOutlined />} onClick={() => navigate('/used/sell/write')}>
               상품 등록
             </Button>
-          )}
-        </Space>
+          </Space>
+        )}
       </div>
 
       <List
