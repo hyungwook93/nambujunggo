@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Button, Typography, Space, Carousel, Tag, Divider, App as AntApp, Popconfirm, Spin } from 'antd';
+import { Button, Typography, Space, Carousel, Tag, Divider, App as AntApp, Spin, Image } from 'antd';
 import { EditOutlined, DeleteOutlined, LeftOutlined } from '@ant-design/icons';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../hooks/useAuth';
@@ -11,7 +11,7 @@ export default function UsedProductDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { currentUser } = useAuth();
-  const { message } = AntApp.useApp();
+  const { message, modal } = AntApp.useApp();
 
   const [product, setProduct] = useState<any>(null);
   const [images, setImages] = useState<any[]>([]);
@@ -117,11 +117,18 @@ export default function UsedProductDetail() {
             <Button icon={<EditOutlined />} onClick={() => navigate(`/used/sell/edit/${id}`)}>
               수정
             </Button>
-            <Popconfirm title="정말 삭제하시겠습니까?" onConfirm={handleDelete} okText="삭제" cancelText="취소" okButtonProps={{ danger: true }}>
-              <Button danger icon={<DeleteOutlined />}>
-                삭제
-              </Button>
-            </Popconfirm>
+            <Button danger icon={<DeleteOutlined />} onClick={() => {
+              modal.confirm({
+                title: '정말 삭제하시겠습니까?',
+                content: '삭제 후에는 복구할 수 없습니다.',
+                okText: '삭제',
+                okType: 'danger',
+                cancelText: '취소',
+                onOk: handleDelete
+              });
+            }}>
+              삭제
+            </Button>
           </Space>
         )}
       </div>
@@ -131,7 +138,7 @@ export default function UsedProductDetail() {
           <Carousel autoplay>
             {images.map((img) => (
               <div key={img.img_seq} style={{ display: 'flex', justifyContent: 'center' }}>
-                <img 
+                <Image 
                   src={img.image_url} 
                   alt="제품 사진" 
                   style={{ width: '100%', height: 400, objectFit: 'contain', backgroundColor: '#fff' }} 

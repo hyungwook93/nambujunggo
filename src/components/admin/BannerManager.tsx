@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Table, Button, Space, Card, Input, Typography, Image, Popconfirm, Empty, App as AntApp, Upload } from 'antd';
+import { Table, Button, Space, Card, Input, Typography, Image, Empty, App as AntApp, Upload } from 'antd';
 import { PictureOutlined, PlusOutlined, DeleteOutlined, FileTextOutlined, UploadOutlined } from '@ant-design/icons';
 import { supabase } from '../../lib/supabase';
+import modal from 'antd/es/modal';
 
 const { Title, Text } = Typography;
 
@@ -155,17 +156,23 @@ export default function BannerManager({ onBannersChange }: { onBannersChange: (b
       width: 80,
       align: 'center' as const,
       render: (_: any, record: any) => (
-        <Popconfirm
-          title="삭제할까요?"
-          onConfirm={() => handleDelete(record.id)}
-          okText="삭제"
-          cancelText="취소"
-          okButtonProps={{ danger: true }}
+        <Button 
+          danger 
+          size="small" 
+          icon={<DeleteOutlined />}
+          onClick={() => {
+            modal.confirm({
+              title: '정말 삭제하시겠습니까?',
+              content: '삭제 후에는 복구할 수 없습니다.',
+              okText: '삭제',
+              okType: 'danger',
+              cancelText: '취소',
+              onOk: () => handleDelete(record.id)
+            });
+          }}
         >
-          <Button danger size="small" icon={<DeleteOutlined />}>
-            삭제
-          </Button>
-        </Popconfirm>
+          삭제
+        </Button>
       ),
     },
   ];
