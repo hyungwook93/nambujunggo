@@ -17,7 +17,7 @@ export default function UsedProductDetail() {
   const [images, setImages] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const hasManagerRole = currentUser?.roles?.includes('MANAGER') || currentUser?.roles?.includes('SYSTEM');
+  const isManagerOrAdmin = currentUser?.isAdmin || (currentUser?.roles && currentUser.roles.includes('MANAGER'));
 
   useEffect(() => {
     if (id) {
@@ -109,7 +109,7 @@ export default function UsedProductDetail() {
           등록일: {new Date(product.reg_date).toLocaleDateString()} | 조회 {product.view_cnt}
         </Text>
         
-        {hasManagerRole && (
+        {isManagerOrAdmin && (
           <Space>
             {product.status !== 'C' && (
               <Button onClick={handleMarkAsSold}>판매완료</Button>

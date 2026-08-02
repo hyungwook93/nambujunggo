@@ -17,7 +17,7 @@ export default function UsedProductList() {
   const { currentUser } = useAuth();
   const { message } = AntApp.useApp();
 
-  const isAdmin = currentUser?.isAdmin ?? false;
+  const isManagerOrAdmin = currentUser?.isAdmin || (currentUser?.roles && currentUser.roles.includes('MANAGER'));
 
   useEffect(() => {
     fetchProducts();
@@ -74,7 +74,7 @@ export default function UsedProductList() {
             onChange={(e) => setSearchText(e.target.value)}
             style={{ width: 200 }} 
           />
-          {isAdmin && (
+          {isManagerOrAdmin && (
             <Button type="primary" icon={<EditOutlined />} onClick={() => navigate('/used/sell/write')}>
               상품 등록
             </Button>

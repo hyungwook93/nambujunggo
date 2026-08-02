@@ -28,7 +28,7 @@ export default function UsedProductForm({ isEdit = false }: { isEdit?: boolean }
   const [form] = Form.useForm();
   const { message } = AntApp.useApp();
   const { currentUser } = useAuth();
-  const isAdmin = currentUser?.isAdmin ?? false;
+  const isManagerOrAdmin = currentUser?.isAdmin || (currentUser?.roles && currentUser.roles.includes('MANAGER'));
 
   const [loading, setLoading] = useState(false);
   const [content, setContent] = useState('');
@@ -36,7 +36,7 @@ export default function UsedProductForm({ isEdit = false }: { isEdit?: boolean }
   const [viewMode, setViewMode] = useState<'PC' | 'MOBILE'>('PC');
 
   useEffect(() => {
-    if (!isAdmin) {
+    if (!isManagerOrAdmin) {
       message.error('접근 권한이 없습니다.');
       navigate('/used/sell');
       return;
@@ -45,7 +45,7 @@ export default function UsedProductForm({ isEdit = false }: { isEdit?: boolean }
     if (isEdit && id) {
       loadData();
     }
-  }, [isEdit, id, isAdmin]);
+  }, [isEdit, id, isManagerOrAdmin]);
 
   const loadData = async () => {
     setLoading(true);
