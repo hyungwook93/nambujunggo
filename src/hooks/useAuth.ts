@@ -3,11 +3,19 @@ import bcrypt from 'bcryptjs';
 import { supabase } from '../lib/supabase';
 
 const SESSION_KEY = 'techshop_user';
+const SESSION_TTL_MS = 1 * 60 * 60 * 1000; // 1시간 (밀리초)
 
 function loadSession() {
   try {
     const raw = localStorage.getItem(SESSION_KEY);
-    return raw ? JSON.parse(raw) : null;
+    if (!raw) return null;
+    const session = JSON.parse(raw);
+    // 세션 만료 체크
+    if (session?.loginAt && Date.now() - session.loginAt > SESSION_TTL_MS) {
+      localStorage.removeItem(SESSION_KEY);
+      return null;
+    }
+    return session;
   } catch {
     return null;
   }
@@ -108,6 +116,7 @@ export function useAuth() {
       userName: user.user_name,
       roles: roleList,
       isAdmin,
+      loginAt: Date.now(), // 세션 만료 기준 시각
     };
 
     saveSession(sessionUser);
