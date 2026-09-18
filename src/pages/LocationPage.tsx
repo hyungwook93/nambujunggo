@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, Typography, Space, Button } from 'antd';
-import { EnvironmentOutlined, GlobalOutlined } from '@ant-design/icons';
+import { EnvironmentOutlined, GlobalOutlined, PhoneOutlined } from '@ant-design/icons';
 
 const { Text } = Typography;
 
@@ -28,11 +28,19 @@ export default function LocationPage() {
       </div>
       
       <div style={{ marginTop: 24, textAlign: 'center', display: 'flex', flexDirection: 'column', gap: 16 }}>
-        <Space>
+        <Space wrap style={{ justifyContent: 'center' }}>
           <EnvironmentOutlined style={{ fontSize: 20, color: '#1677ff' }} />
           <Text strong style={{ fontSize: 18 }}>
-            {address} | TEL : 062-351-9007
+            {address}
           </Text>
+          <Button
+            type="primary"
+            icon={<PhoneOutlined />}
+            href="tel:062-351-9007"
+            style={{ backgroundColor: '#1677ff', borderColor: '#1677ff', fontWeight: 'bold' }}
+          >
+            062-351-9007
+          </Button>
         </Space>
 
         <Space style={{ justifyContent: 'center' }} wrap>
