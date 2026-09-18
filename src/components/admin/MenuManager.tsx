@@ -124,6 +124,7 @@ export default function MenuManager({ onMenusChange }: { onMenusChange?: (menus:
       order_index: record.order_index,
       requires_admin: record.requires_admin,
       is_active: record.is_active,
+      show_on_main: record.show_on_main ?? false,
     });
     setModalOpen(true);
   };
@@ -139,6 +140,7 @@ export default function MenuManager({ onMenusChange }: { onMenusChange?: (menus:
       order_index: Number(values.order_index) || 0,
       requires_admin: values.requires_admin ?? false,
       is_active: values.is_active ?? true,
+      show_on_main: values.show_on_main ?? false,
       mod_date: new Date().toISOString(),
     };
     const { error } = editing
@@ -258,6 +260,38 @@ export default function MenuManager({ onMenusChange }: { onMenusChange?: (menus:
         ) : (
           <Tag color="default">일반</Tag>
         ),
+    },
+    {
+      title: '메인화면 보이기',
+      dataIndex: 'show_on_main',
+      key: 'show_on_main',
+      width: 120,
+      align: 'center' as const,
+      render: (v: any, record: any) => (
+        <Switch
+          checkedChildren="보임"
+          unCheckedChildren="숨김"
+          checked={!!v}
+          onChange={async (checked) => {
+            if (checked) {
+              // 현재 show_on_main=true인 메뉴 수 확인 (대메뉴/하위메뉴 모두 포함)
+              const currentCount = rawMenus.filter(
+                (m) => m.show_on_main && m.id !== record.id
+              ).length;
+              if (currentCount >= 4) {
+                msg.warning('메인화면 바로가기는 최대 4개까지만 설정할 수 있습니다.\n다른 메뉴를 먼저 해제해 주세요.');
+                return;
+              }
+            }
+            const { error } = await supabase
+              .from('site_menus')
+              .update({ show_on_main: checked, mod_date: new Date().toISOString() })
+              .eq('id', record.id);
+            if (error) msg.error('상태 변경 실패: ' + error.message);
+            else fetchMenus();
+          }}
+        />
+      ),
     },
     /* {
       title: '활성화',
@@ -386,6 +420,13 @@ export default function MenuManager({ onMenusChange }: { onMenusChange?: (menus:
             <Col span={12}>
               <Form.Item label="활성화" name="is_active" valuePropName="checked">
                 <Switch defaultChecked />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={12}>
+            <Col span={12}>
+              <Form.Item label="메인화면 보이기" name="show_on_main" valuePropName="checked">
+                <Switch />
               </Form.Item>
             </Col>
           </Row>

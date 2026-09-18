@@ -6,7 +6,7 @@ import modal from 'antd/es/modal';
 
 const { Title, Text } = Typography;
 
-export default function BannerManager({ onBannersChange }: { onBannersChange: (banners: any[]) => void }) {
+export default function BannerManager() {
   const [banners, setBanners] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   
@@ -26,10 +26,9 @@ export default function BannerManager({ onBannersChange }: { onBannersChange: (b
     if (error) message.error('배너 로드 실패: ' + error.message);
     else {
       setBanners(data || []);
-      onBannersChange(data || []);
     }
     setLoading(false);
-  }, [message, onBannersChange]);
+  }, [message]);
 
   useEffect(() => {
     fetchBanners();

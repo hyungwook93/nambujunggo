@@ -48,8 +48,6 @@ function AppInner() {
   const navigate = useNavigate();
   const location = useLocation();
   const currentPage = location.pathname;
-  const [banners, setBanners] = useState([]);
-  const [bannersLoading, setBannersLoading] = useState(true);
   const [loginOpen, setLoginOpen] = useState(false);
   const [loginLoading, setLoginLoading] = useState(false);
   const [passwordModalOpen, setPasswordModalOpen] = useState(false);
@@ -58,35 +56,6 @@ function AppInner() {
   const { message, modal } = AntApp.useApp();
 
   const isAdmin = currentUser?.isAdmin ?? false;
-
-  const loadBanners = useCallback(async () => {
-    setBannersLoading(true);
-    const { data, error } = await supabase
-      .from('dashboard_banners')
-      .select('*')
-      .eq('is_active', true)
-      .order('order_index');
-    if (!error) setBanners(data || []);
-    else
-      setBanners([
-        {
-          id: 'd1',
-          image_url: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=1200&q=80',
-          title: '최신 노트북 라인업 출시',
-        },
-        {
-          id: 'd2',
-          image_url: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=1200&q=80',
-          title: '스마트기기 특가 행사',
-        },
-        {
-          id: 'd3',
-          image_url: 'https://images.unsplash.com/photo-1593642632559-0c6d3fc62b89?w=1200&q=80',
-          title: '중고 거래 이벤트 안내',
-        },
-      ]);
-    setBannersLoading(false);
-  }, []);
 
   // 메뉴 로드
   const loadSiteMenus = useCallback(async () => {
@@ -98,10 +67,14 @@ function AppInner() {
     if (!error) setSiteMenus(data || []);
   }, []);
 
+  // 메인화면 보이기 메뉴 (show_on_main=true, order_index 순)
+  const mainMenus = (siteMenus as any[])
+    .filter((m: any) => m.show_on_main)
+    .sort((a: any, b: any) => a.order_index - b.order_index);
+
   useEffect(() => {
-    loadBanners();
     loadSiteMenus();
-  }, [loadBanners, loadSiteMenus]);
+  }, [loadSiteMenus]);
 
   // 로그인 처리
   const handleLogin = async (userId, password) => {
@@ -127,7 +100,7 @@ function AppInner() {
   const renderContent = () => {
     return (
       <Routes>
-        <Route path="/" element={<Dashboard banners={banners} loading={bannersLoading} />} />
+        <Route path="/" element={<Dashboard mainMenus={mainMenus} />} />
         
         <Route path="/signup" element={
           <PageLayout title="회원가입">
@@ -160,7 +133,7 @@ function AppInner() {
         <Route path="/admin" element={
           isAdmin ? (
             <PageLayout title="관리자 메뉴">
-              <AdminPage onBannersChange={setBanners} onMenusChange={loadSiteMenus} />
+              <AdminPage onMenusChange={loadSiteMenus} />
             </PageLayout>
           ) : (
             <Result

@@ -8,10 +8,8 @@ import CommonCodeManager from '../components/admin/CommonCodeManager';
 const { Title } = Typography;
 
 export default function AdminPage({
-  onBannersChange,
   onMenusChange,
 }: {
-  onBannersChange: (banners: any[]) => void;
   onMenusChange: (menus: any[]) => void;
 }) {
   const tabItems = [
@@ -31,7 +29,7 @@ export default function AdminPage({
           <PictureOutlined /> 대시보드 관리
         </span>
       ),
-      children: <BannerManager onBannersChange={onBannersChange} />,
+      children: <BannerManager />,
     },
     {
       key: 'common_code',
