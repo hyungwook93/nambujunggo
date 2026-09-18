@@ -6,8 +6,8 @@ const { Text } = Typography;
 
 export default function LocationPage() {
   const address = '광주광역시 남구 대남대로 302';
-  const kakaoMapUrl = `https://map.kakao.com/link/search/${encodeURIComponent(address)}`;
-  const naverMapUrl = `https://map.naver.com/v5/search/${encodeURIComponent(address)}`;
+  const kakaoMapUrl = 'https://place.map.kakao.com/8245547';
+  const naverMapUrl = 'https://map.naver.com/p/entry/place/33118862?c=15.00,0,0,0,dh&placePath=%2Fhome%3Ffrom%3Dmap%26fromPanelNum%3D1%26additionalHeight%3D76%26timestamp%3D202609182344%26locale%3Dko%26svcName%3Dmap_pcv5';
 
   return (
     <Card 

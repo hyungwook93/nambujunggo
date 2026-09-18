@@ -22,7 +22,7 @@ import {
   SettingOutlined,
 } from '@ant-design/icons';
 import { supabase } from './lib/supabase';
-import { useAuth } from './hooks/useAuth';
+import { useAuth, AuthProvider } from './hooks/useAuth';
 import LoginModal from './components/LoginModal';
 import PasswordConfirmModal from './components/PasswordConfirmModal';
 import SignupPage from './pages/SignupPage';
@@ -444,7 +444,9 @@ export default function App() {
       }}
     >
       <AntApp>
-        <AppInner />
+        <AuthProvider>
+          <AppInner />
+        </AuthProvider>
       </AntApp>
     </ConfigProvider>
   );
