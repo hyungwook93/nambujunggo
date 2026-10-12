@@ -13,14 +13,15 @@ import {
   Result,
   Drawer,
 } from 'antd';
-import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
+import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import {
   MenuOutlined,
   LoginOutlined,
-  UserOutlined,
   LogoutOutlined,
   SettingOutlined,
+  CrownFilled,
 } from '@ant-design/icons';
+import SessionTimer from './components/SessionTimer';
 import { supabase } from './lib/supabase';
 import { useAuth, AuthProvider } from './hooks/useAuth';
 import LoginModal from './components/LoginModal';
@@ -34,17 +35,26 @@ import AdminPage from './pages/AdminPage';
 import UsedProductList from './pages/used/UsedProductList';
 import UsedProductDetail from './pages/used/UsedProductDetail';
 import UsedProductForm from './pages/used/UsedProductForm';
+import { USED_TYPES, isUsedType } from './lib/usedType';
+import FontSizeControl, { useFontScale } from './components/FontSizeControl';
 import mainLogo from './img/logo/남부중고알뜰매장.png';
 import './App.css';
 
 const { Header, Content, Footer } = Layout;
 const { Title, Text } = Typography;
 
+// 아바타 표시 텍스트: 3글자 이상이면 첫 글자, 2글자 이하면 전체
+const getAvatarText = (name?: string) => {
+  const chars = Array.from((name || '').trim());
+  if (chars.length === 0) return '?';
+  return chars.length >= 3 ? chars[0] : chars.join('');
+};
+
 // ─────────────────────────────────────────────
 // 5. AppInner
 // ─────────────────────────────────────────────
 function AppInner() {
-  const { currentUser, login, logout, register, checkDuplicateId } = useAuth();
+  const { currentUser, login, logout, register, checkDuplicateId, extendSession, expiredAt, clearExpired } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const currentPage = location.pathname;
@@ -54,6 +64,9 @@ function AppInner() {
   const [siteMenus, setSiteMenus] = useState([]);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const { message, modal } = AntApp.useApp();
+  const [fontScale, setFontScale] = useFontScale();
+  // 글자 크기: 화면 영역(헤더 제외)에 zoom 적용 → 비율이 유지되어 레이아웃이 잘 깨지지 않음
+  const zoomStyle = { zoom: fontScale, '--font-zoom': fontScale } as React.CSSProperties;
 
   const isAdmin = currentUser?.isAdmin ?? false;
 
@@ -75,6 +88,22 @@ function AppInner() {
   useEffect(() => {
     loadSiteMenus();
   }, [loadSiteMenus]);
+
+  // 무활동 자동 로그아웃 안내
+  useEffect(() => {
+    if (!expiredAt) return;
+    message.warning('30분간 활동이 없어 자동 로그아웃되었습니다.');
+    clearExpired();
+    if (['/admin', '/profile'].includes(location.pathname) || location.pathname.endsWith('/write') || location.pathname.includes('/edit/')) {
+      navigate('/');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [expiredAt]);
+
+  const handleExtend = () => {
+    // 이미 만료된 경우 연장되지 않으며, 만료 안내는 expiredAt effect 에서 표시됨
+    if (extendSession()) message.success('로그인 시간이 30분 연장되었습니다.');
+  };
 
   // 로그인 처리
   const handleLogin = async (userId, password) => {
@@ -98,6 +127,8 @@ function AppInner() {
 
   // 페이지 렌더
   const renderContent = () => {
+    const usedSeg = currentPage.split('/')[2];
+    const usedTypeTitle = isUsedType(usedSeg) ? USED_TYPES[usedSeg].title : '제품';
     return (
       <Routes>
         <Route path="/" element={<Dashboard mainMenus={mainMenus} />} />
@@ -150,26 +181,29 @@ function AppInner() {
           </PageLayout>
         } />
         
-        <Route path="/used/sell" element={
-          <PageLayout title="중고제품 판매">
+        {/* 중고: /used/appliance(가전), /used/furniture(사무용 가구) */}
+        <Route path="/used/sell" element={<Navigate to="/used/appliance" replace />} />
+
+        <Route path="/used/:type" element={
+          <PageLayout title={`중고 ${usedTypeTitle}`}>
             <UsedProductList />
           </PageLayout>
         } />
         
-        <Route path="/used/sell/:id" element={
-          <PageLayout title="중고제품 상세">
+        <Route path="/used/:type/:id" element={
+          <PageLayout title={`중고 ${usedTypeTitle} 상세`}>
             <UsedProductDetail />
           </PageLayout>
         } />
         
-        <Route path="/used/sell/write" element={
-          <PageLayout title="중고제품 등록">
+        <Route path="/used/:type/write" element={
+          <PageLayout title={`중고 ${usedTypeTitle} 등록`}>
             <UsedProductForm />
           </PageLayout>
         } />
         
-        <Route path="/used/sell/edit/:id" element={
-          <PageLayout title="중고제품 수정">
+        <Route path="/used/:type/edit/:id" element={
+          <PageLayout title={`중고 ${usedTypeTitle} 수정`}>
             <UsedProductForm isEdit />
           </PageLayout>
         } />
@@ -190,50 +224,63 @@ function AppInner() {
 
   // 헤더 우측 – 로그인 상태에 따라 다른 UI
   const headerRight = currentUser ? (
-    <Dropdown
-      menu={{
-        items: [
-          {
-            key: 'info',
-            label: (
-              <Text type="secondary" style={{ fontSize: 12 }}>
-                {currentUser.userId}
-              </Text>
-            ),
-            disabled: true,
-          },
-          {
-            key: 'edit',
-            label: '정보 수정',
-            icon: <SettingOutlined />,
-            onClick: () => setPasswordModalOpen(true),
-          },
-          { type: 'divider' },
-          {
-            key: 'logout',
-            label: '로그아웃',
-            icon: <LogoutOutlined />,
-            onClick: handleLogout,
-            danger: true,
-          },
-        ],
-      }}
-      placement="bottomRight"
-    >
-      <Space style={{ cursor: 'pointer' }} size={8}>
-        <Avatar
-          size={32}
-          icon={<UserOutlined />}
-          style={{ backgroundColor: isAdmin ? '#faad14' : '#1677ff' }}
-        />
-        <Text style={{ color: '#fff', fontSize: 13 }}>{currentUser.userName}</Text>
-        {isAdmin && (
-          <Tag color="gold" style={{ marginLeft: 0 }}>
-            시스템관리자
-          </Tag>
-        )}
-      </Space>
-    </Dropdown>
+    <div className="header-user">
+      <Dropdown
+        trigger={['click']}
+        menu={{
+          items: [
+            {
+              key: 'info',
+              label: (
+                <div>
+                  <Text strong>{currentUser.userName}</Text>{' '}
+                  {isAdmin && <Tag color="gold" style={{ marginRight: 0 }}>시스템관리자</Tag>}
+                  <div>
+                    <Text type="secondary" style={{ fontSize: 12 }}>
+                      {currentUser.userId}
+                    </Text>
+                  </div>
+                </div>
+              ),
+              disabled: true,
+              style: { cursor: 'default' },
+            },
+            { type: 'divider' },
+            {
+              key: 'edit',
+              label: '정보 수정',
+              icon: <SettingOutlined />,
+              onClick: () => setPasswordModalOpen(true),
+            },
+            {
+              key: 'logout',
+              label: '로그아웃',
+              icon: <LogoutOutlined />,
+              onClick: handleLogout,
+              danger: true,
+            },
+          ],
+        }}
+        placement="bottomRight"
+      >
+        <span className="header-user-trigger" id="header-user-menu">
+          <Avatar
+            size={28}
+            style={{
+              backgroundColor: isAdmin ? '#faad14' : '#1677ff',
+              flexShrink: 0,
+              fontSize: getAvatarText(currentUser.userName).length > 1 ? 11 : 14,
+              fontWeight: 700,
+              letterSpacing: -0.5,
+            }}
+          >
+            {getAvatarText(currentUser.userName)}
+          </Avatar>
+          {isAdmin && <CrownFilled className="header-admin-badge" title="시스템관리자" />}
+        </span>
+      </Dropdown>
+      <SessionTimer onExtend={handleExtend} />
+    </div>
   ) : (
     <Button
       type="primary"
@@ -303,7 +350,7 @@ function AppInner() {
         className="app-header-wrapper"
         style={{ background: '#fa8c16', padding: 0, position: 'sticky', top: 0, zIndex: 100 }}
       >
-        <div className="header-inner" style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'center' }}>
+        <div className="header-inner">
           {/* 왼쪽: 햄버거 버튼 */}
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <Button
@@ -323,7 +370,7 @@ function AppInner() {
           </div>
 
           {/* 오른쪽: 로그인/유저 */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+          <div className="header-right">
             {headerRight}
           </div>
         </div>
@@ -340,7 +387,7 @@ function AppInner() {
         onClose={() => setDrawerOpen(false)}
         open={drawerOpen}
         width={260}
-        styles={{ body: { padding: 0 } }}
+        styles={{ body: { padding: 0, zoom: fontScale } }}
       >
         <Menu
           mode="inline"
@@ -361,9 +408,9 @@ function AppInner() {
         />
       </Drawer>
 
-      <Content className="app-content">{renderContent()}</Content>
+      <Content className="app-content" style={zoomStyle}>{renderContent()}</Content>
 
-      <Footer className="app-footer" style={{ background: '#333', color: '#fff' }}>
+      <Footer className="app-footer" style={{ background: '#333', color: '#fff', ...zoomStyle }}>
         <div style={{ textAlign: 'left', lineHeight: '1.8', padding: '24px 24px' }}>
           <Text style={{ color: '#ddd' }}>
             남부중고알뜰매장 | 대표자: 임준삼 | 사업자등록번호: 408-07-39300
@@ -414,6 +461,8 @@ function AppInner() {
           navigate('/profile');
         }}
       />
+      {/* 우측 하단 글자 크기 조절 */}
+      <FontSizeControl scale={fontScale} onChange={setFontScale} />
     </Layout>
   );
 }

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { Button, Typography, Space, Carousel, Tag, Divider, App as AntApp, Spin, Image } from 'antd';
 import { EditOutlined, DeleteOutlined, LeftOutlined } from '@ant-design/icons';
 import { supabase } from '../../lib/supabase';
@@ -8,8 +8,12 @@ import { useAuth } from '../../hooks/useAuth';
 const { Title, Text } = Typography;
 
 export default function UsedProductDetail() {
-  const { id } = useParams();
+  const { id, type } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+  const listPath = `/used/${type}`;
+  // 목록에서 들어온 경우 뒤로가기로 복귀해 검색조건/페이지 유지
+  const goList = () => (location.key !== 'default' ? navigate(-1) : navigate(listPath));
   const { currentUser } = useAuth();
   const { message, modal } = AntApp.useApp();
 
@@ -50,7 +54,7 @@ export default function UsedProductDetail() {
 
     if (prodErr || !prodData) {
       message.error('상품 정보를 불러오지 못했습니다.');
-      navigate('/used/sell');
+      navigate(listPath);
     } else {
       setProduct(prodData);
       setImages(imgData || []);
@@ -75,7 +79,7 @@ export default function UsedProductDetail() {
       message.error('삭제 실패: ' + error.message);
     } else {
       message.success('상품이 삭제되었습니다.');
-      navigate('/used/sell');
+      goList();
     }
   };
 
@@ -87,7 +91,7 @@ export default function UsedProductDetail() {
 
   return (
     <div style={{ maxWidth: 800, margin: '0 auto', padding: '16px 0' }}>
-      <Button type="text" icon={<LeftOutlined />} onClick={() => navigate('/used/sell')} style={{ marginBottom: 16 }}>
+      <Button type="text" icon={<LeftOutlined />} onClick={goList} style={{ marginBottom: 16 }}>
         목록으로
       </Button>
 
@@ -114,7 +118,7 @@ export default function UsedProductDetail() {
             {product.status !== 'C' && (
               <Button onClick={handleMarkAsSold}>판매완료</Button>
             )}
-            <Button icon={<EditOutlined />} onClick={() => navigate(`/used/sell/edit/${id}`)}>
+            <Button icon={<EditOutlined />} onClick={() => navigate(`/used/${type}/edit/${id}`)}>
               수정
             </Button>
             <Button danger icon={<DeleteOutlined />} onClick={() => {
@@ -135,17 +139,19 @@ export default function UsedProductDetail() {
 
       {images.length > 0 && (
         <div style={{ marginBottom: 24, borderRadius: 8, overflow: 'hidden', backgroundColor: '#f0f2f5' }}>
-          <Carousel autoplay>
-            {images.map((img) => (
-              <div key={img.img_seq} style={{ display: 'flex', justifyContent: 'center' }}>
-                <Image 
-                  src={img.image_url} 
-                  alt="제품 사진" 
-                  style={{ width: '100%', height: 400, objectFit: 'contain', backgroundColor: '#fff' }} 
-                />
-              </div>
-            ))}
-          </Carousel>
+          <Image.PreviewGroup>
+            <Carousel autoplay arrows style={{ backgroundColor: '#fff' }}>
+              {images.map((img) => (
+                <div key={img.img_seq} style={{ display: 'flex', justifyContent: 'center' }}>
+                  <Image 
+                    src={img.image_url} 
+                    alt="제품 사진" 
+                    style={{ width: '100%', height: 400, objectFit: 'contain', backgroundColor: '#fff' }} 
+                  />
+                </div>
+              ))}
+            </Carousel>
+          </Image.PreviewGroup>
         </div>
       )}
 

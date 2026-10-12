@@ -4,6 +4,7 @@ import { Form, Input, Button, Upload, Typography, Space, App as AntApp, Radio, C
 import { CameraOutlined, UploadOutlined, MobileOutlined, DesktopOutlined } from '@ant-design/icons';
 import { supabase } from '../../lib/supabase';
 import CommonCodeSelector from '../../components/common/CommonCodeSelector';
+import { USED_TYPES, isUsedType } from '../../lib/usedType';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import {
   ClassicEditor,
@@ -23,7 +24,9 @@ import { useAuth } from '../../hooks/useAuth';
 const { Title, Text } = Typography;
 
 export default function UsedProductForm({ isEdit = false }: { isEdit?: boolean }) {
-  const { id } = useParams();
+  const { id, type } = useParams();
+  const typeInfo = isUsedType(type) ? USED_TYPES[type] : null;
+  const listPath = `/used/${type}`;
   const navigate = useNavigate();
   const [form] = Form.useForm();
   const { message } = AntApp.useApp();
@@ -38,7 +41,7 @@ export default function UsedProductForm({ isEdit = false }: { isEdit?: boolean }
   useEffect(() => {
     if (!isManagerOrAdmin) {
       message.error('접근 권한이 없습니다.');
-      navigate('/used/sell');
+      navigate(listPath);
       return;
     }
 
@@ -140,14 +143,18 @@ export default function UsedProductForm({ isEdit = false }: { isEdit?: boolean }
           const { data: urlData } = supabase.storage.from('product image').getPublicUrl(filePath);
           const imgUrl = urlData.publicUrl;
 
-          if (i === 0 && !thumbnailUrl) thumbnailUrl = imgUrl; // 첫 이미지를 썸네일로
+          const isFirstImg = (i === 0 && !thumbnailUrl);
+          if (isFirstImg) {
+            thumbnailUrl = imgUrl;
+          }
 
-          await supabase.from('used_product_image').insert({
+          const { error: insertImgErr } = await supabase.from('used_product_image').insert({
             used_seq: usedSeq,
             image_url: imgUrl,
-            is_thumbnail: i === 0 && !thumbnailUrl,
+            is_thumbnail: isFirstImg,
             sort_order: ++sortOrderCounter,
           });
+          if (insertImgErr) throw insertImgErr;
         }
       }
 
@@ -162,7 +169,7 @@ export default function UsedProductForm({ isEdit = false }: { isEdit?: boolean }
       }
 
       message.success({ content: '저장되었습니다.', key: 'saveProduct' });
-      navigate('/used/sell');
+      navigate(listPath);
     } catch (error: any) {
       message.error({ content: '저장 실패: ' + error.message, key: 'saveProduct' });
     } finally {
@@ -194,7 +201,7 @@ export default function UsedProductForm({ isEdit = false }: { isEdit?: boolean }
   return (
     <div style={{ padding: '16px', backgroundColor: '#f0f2f5', minHeight: '100vh' }}>
       <div style={{ maxWidth: 640, margin: '0 auto', marginBottom: 16, display: 'flex', alignItems: 'center' }}>
-        <Title level={4} style={{ margin: 0 }}>{isEdit ? '중고상품 수정' : '중고상품 등록'}</Title>
+        <Title level={4} style={{ margin: 0 }}>{typeInfo?.title} {isEdit ? '중고상품 수정' : '중고상품 등록'}</Title>
       </div>
 
       <div style={{
@@ -211,7 +218,7 @@ export default function UsedProductForm({ isEdit = false }: { isEdit?: boolean }
           </Form.Item>
 
           <Form.Item label="카테고리" name="category_code" rules={[{ required: true, message: '카테고리를 선택해주세요.' }]}>
-            <CommonCodeSelector parentCode="CATEGORY" placeholder="품목 선택" />
+            <CommonCodeSelector parentCode={typeInfo?.parentCode ?? ''} placeholder={`${typeInfo?.title ?? ''} 품목 선택`} />
           </Form.Item>
 
           {isEdit && (
@@ -226,25 +233,38 @@ export default function UsedProductForm({ isEdit = false }: { isEdit?: boolean }
           <Form.Item label="상품 사진 (첫번째 사진이 대표이미지가 됩니다)">
             <Space direction="vertical" style={{ width: '100%' }}>
               {/* 카메라 촬영 버튼 (모바일 브라우저에서 후면 카메라 직접 실행) */}
-              <div style={{ position: 'relative', overflow: 'hidden', display: 'inline-block' }}>
-                <input
-                  type="file"
-                  accept="image/*"
-                  capture="environment"
-                  onChange={(e) => {
-                    if (e.target.files && e.target.files[0]) {
-                      const file = e.target.files[0];
-                      setFileList([...fileList, {
-                        uid: String(Date.now()),
-                        name: file.name,
-                        status: 'done',
-                        originFileObj: file,
-                        url: URL.createObjectURL(file)
-                      }]);
-                    }
-                  }}
-                  style={{ position: 'absolute', top: 0, right: 0, minWidth: '100%', minHeight: '100%', fontSize: 100, textAlign: 'right', opacity: 0, outline: 'none', background: 'white', cursor: 'inherit', display: 'block' }}
-                />
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <div style={{ position: 'relative', overflow: 'hidden', display: 'inline-block' }}>
+                  <Button icon={<CameraOutlined />}>직접 촬영</Button>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    onChange={(e) => {
+                      if (e.target.files && e.target.files[0]) {
+                        const file = e.target.files[0];
+                        const newFile = {
+                          uid: String(Date.now() + Math.random()),
+                          name: file.name,
+                          status: 'done',
+                          originFileObj: file,
+                          url: URL.createObjectURL(file),
+                        };
+                        setFileList((prev) => [...prev, newFile]);
+                        e.target.value = ''; // 재촬영 시에도 onChange 정상 작동하도록 초기화
+                      }
+                    }}
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: '100%',
+                      height: '100%',
+                      opacity: 0,
+                      cursor: 'pointer',
+                    }}
+                  />
+                </div>
               </div>
 
               <Upload {...uploadProps}>
@@ -274,7 +294,7 @@ export default function UsedProductForm({ isEdit = false }: { isEdit?: boolean }
 
           <Form.Item style={{ marginTop: 24 }}>
             <Space style={{ width: '100%', justifyContent: 'flex-end' }}>
-              <Button onClick={() => navigate('/used/sell')}>취소</Button>
+              <Button onClick={() => navigate(listPath)}>취소</Button>
               <Button type="primary" htmlType="submit" loading={loading} size="large">
                 {isEdit ? '수정하기' : '등록하기'}
               </Button>

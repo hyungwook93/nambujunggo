@@ -28,15 +28,15 @@ import { useAuth } from '../hooks/useAuth';
 const { Title, Text } = Typography;
 
 // 카카오 주소 API 스크립트 동적 로드
-function loadDaumPostcode() {
-  return new Promise((resolve) => {
+function loadDaumPostcode(): Promise<void> {
+  return new Promise<void>((resolve) => {
     if (window.daum && window.daum.Postcode) {
       resolve();
       return;
     }
     const script = document.createElement('script');
     script.src = 'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
-    script.onload = resolve;
+    script.onload = () => resolve();
     document.head.appendChild(script);
   });
 }

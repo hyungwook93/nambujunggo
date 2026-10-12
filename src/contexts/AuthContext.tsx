@@ -1,18 +1,43 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import bcrypt from 'bcryptjs';
 import { supabase } from '../lib/supabase';
 
 // ─── 세션 관련 유틸 ────────────────────────────────────────────
 const SESSION_KEY = 'techshop_user';
-const SESSION_TTL_MS = 1 * 60 * 60 * 1000; // 1시간
+const ACTIVITY_KEY = 'techshop_last_activity';
+export const SESSION_TTL_MS = 30 * 60 * 1000; // 30분 무활동 시 로그아웃
+const ACTIVITY_WRITE_INTERVAL_MS = 10 * 1000; // 활동 시각 저장 쓰로틀
+const EXPIRE_CHECK_INTERVAL_MS = 5 * 1000; // 만료 검사 주기
+
+/** 마지막 활동 시각 (localStorage 공유 → 여러 탭에서 동일 값) */
+export function getLastActivity(): number {
+  const v = Number(localStorage.getItem(ACTIVITY_KEY));
+  return Number.isFinite(v) && v > 0 ? v : 0;
+}
+
+function touchActivity(now = Date.now()) {
+  localStorage.setItem(ACTIVITY_KEY, String(now));
+}
+
+function isExpired(): boolean {
+  const last = getLastActivity();
+  return !last || Date.now() - last > SESSION_TTL_MS;
+}
+
+function clearSession() {
+  localStorage.removeItem(SESSION_KEY);
+  localStorage.removeItem(ACTIVITY_KEY);
+}
 
 function loadSession() {
   try {
     const raw = localStorage.getItem(SESSION_KEY);
     if (!raw) return null;
     const session = JSON.parse(raw);
-    if (session?.loginAt && Date.now() - session.loginAt > SESSION_TTL_MS) {
-      localStorage.removeItem(SESSION_KEY);
+    // 활동 기록이 없는 기존 세션은 loginAt 기준으로 이어받는다
+    if (!getLastActivity() && session?.loginAt) touchActivity(session.loginAt);
+    if (isExpired()) {
+      clearSession();
       return null;
     }
     return session;
@@ -22,8 +47,12 @@ function loadSession() {
 }
 
 function saveSession(user: any) {
-  if (user) localStorage.setItem(SESSION_KEY, JSON.stringify(user));
-  else localStorage.removeItem(SESSION_KEY);
+  if (user) {
+    localStorage.setItem(SESSION_KEY, JSON.stringify(user));
+    touchActivity();
+  } else {
+    clearSession();
+  }
 }
 
 // ─── Context 타입 ──────────────────────────────────────────────
@@ -31,6 +60,11 @@ interface AuthContextType {
   currentUser: any;
   login: (userId: string, password: string) => Promise<any>;
   logout: () => void;
+  /** 세션 30분 연장. 이미 만료된 세션이면 연장하지 않고 로그아웃하며 false 반환 */
+  extendSession: () => boolean;
+  /** 무활동으로 자동 로그아웃된 시각. 안내 메시지 표시용 (없으면 null) */
+  expiredAt: number | null;
+  clearExpired: () => void;
   register: (formData: any) => Promise<any>;
   checkDuplicateId: (userId: string) => Promise<boolean>;
   verifyPassword: (password: string) => Promise<any>;
@@ -43,6 +77,66 @@ const AuthContext = createContext<AuthContextType | null>(null);
 // ─── Provider ─────────────────────────────────────────────────
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [currentUser, setCurrentUser] = useState(loadSession);
+  const [expiredAt, setExpiredAt] = useState<number | null>(null);
+
+  const clearExpired = useCallback(() => setExpiredAt(null), []);
+
+  /** 만료되었으면 즉시 로그아웃 처리. 만료되었다면 true */
+  const expireIfNeeded = useCallback(() => {
+    if (localStorage.getItem(SESSION_KEY) && isExpired()) {
+      clearSession();
+      setCurrentUser(null);
+      setExpiredAt(Date.now());
+      return true;
+    }
+    return false;
+  }, []);
+
+  /** 세션 연장 (만료 후에는 연장 불가) */
+  const extendSession = useCallback(() => {
+    if (expireIfNeeded()) return false;
+    if (!localStorage.getItem(SESSION_KEY)) return false;
+    touchActivity();
+    return true;
+  }, [expireIfNeeded]);
+
+  // 활동 감지 / 만료 검사 / 탭 간 동기화
+  useEffect(() => {
+    if (!currentUser) return;
+
+    let lastWrite = 0;
+    const onActivity = () => {
+      // 만료 후에 발생한 활동은 세션을 되살리지 못함
+      if (expireIfNeeded()) return;
+      const now = Date.now();
+      if (now - lastWrite < ACTIVITY_WRITE_INTERVAL_MS) return;
+      lastWrite = now;
+      touchActivity(now);
+    };
+
+    const onVisibility = () => {
+      if (document.visibilityState === 'visible') expireIfNeeded();
+    };
+
+    // 다른 탭에서 로그아웃/로그인 시 동기화
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === SESSION_KEY && !e.newValue) setCurrentUser(null);
+    };
+
+    const events = ['mousedown', 'keydown', 'touchstart', 'scroll'];
+    events.forEach((ev) => window.addEventListener(ev, onActivity, { passive: true }));
+    document.addEventListener('visibilitychange', onVisibility);
+    window.addEventListener('storage', onStorage);
+    const timer = window.setInterval(expireIfNeeded, EXPIRE_CHECK_INTERVAL_MS);
+    expireIfNeeded();
+
+    return () => {
+      events.forEach((ev) => window.removeEventListener(ev, onActivity));
+      document.removeEventListener('visibilitychange', onVisibility);
+      window.removeEventListener('storage', onStorage);
+      window.clearInterval(timer);
+    };
+  }, [currentUser, expireIfNeeded]);
 
   /** 로그인 */
   const login = useCallback(async (userId: string, password: string) => {
@@ -213,7 +307,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ currentUser, login, logout, register, checkDuplicateId, verifyPassword, getUserInfo, updateProfile }}
+      value={{
+        currentUser,
+        login,
+        logout,
+        extendSession,
+        expiredAt,
+        clearExpired,
+        register,
+        checkDuplicateId,
+        verifyPassword,
+        getUserInfo,
+        updateProfile,
+      }}
     >
       {children}
     </AuthContext.Provider>

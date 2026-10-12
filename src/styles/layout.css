@@ -35,11 +35,90 @@ body {
 
 .header-inner {
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  /* 좌우 대칭(1fr) + 가운데 로고 → 로고가 헤더 정중앙에 위치 */
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
   height: 56px;
   padding: 0 8px;
-  gap: 0;
+  gap: 4px;
+}
+
+.header-right {
+  justify-content: flex-end;
+  min-width: 0;
+}
+
+/* 헤더 우측: 한 줄 고정 (줄바꿈 금지) */
+.header-user {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  line-height: 1;
+  padding: 3px 4px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.12);
+}
+
+.header-user-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  cursor: pointer;
+}
+
+.header-admin-badge {
+  color: #ffd666;
+  font-size: 13px;
+}
+
+.session-timer-text {
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  font-family: 'Inter', ui-monospace, monospace;
+  min-width: 36px;
+  text-align: center;
+}
+
+.session-timer-text.warn {
+  color: #fff1f0;
+  background: #f5222d;
+  border-radius: 6px;
+  padding: 2px 4px;
+  animation: session-blink 1s ease-in-out infinite;
+}
+
+@keyframes session-blink {
+  50% { opacity: 0.55; }
+}
+
+.session-extend-btn.ant-btn {
+  color: #d46b08;
+  font-weight: 700;
+  font-size: 12px;
+  padding: 0 8px;
+  height: 24px;
+  border: none;
+  background: #fff;
+}
+
+.session-extend-btn.ant-btn:hover {
+  color: #fa8c16 !important;
+  background: #fff7e6 !important;
+}
+
+/* 아주 좁은 화면: 로고를 줄여 우측 영역 확보 */
+/* 좌우 대칭 영역이 뒤틀리지 않도록 연장 버튼 아이콘은 생략 (텍스트만) */
+.session-extend-btn .anticon {
+  display: none;
+}
+
+@media (max-width: 360px) {
+  .header-inner img { height: 22px !important; }
+  .header-user { gap: 3px; padding: 3px 4px; }
+  .session-extend-btn.ant-btn { padding: 0 6px; }
 }
 
 .header-logo {
@@ -97,10 +176,110 @@ body {
 }
 
 /* ── Content ── */
+/* --font-zoom: 글자 크기 조절(zoom) 배율. vh 단위 높이가 배율만큼 커지지 않도록 보정 */
 .app-content {
   padding: 12px;
   width: 100%;
-  min-height: calc(100vh - 56px - 130px);
+  min-height: calc((100vh - 56px - 130px) / var(--font-zoom, 1));
+}
+
+/* 글자가 커져도 레이아웃이 밖으로 밀리지 않도록 보호 */
+.app-content,
+.app-footer {
+  overflow-wrap: anywhere;
+  word-break: keep-all;
+}
+
+.app-content img,
+.app-content video {
+  max-width: 100%;
+}
+
+.app-content .ant-table-wrapper,
+.app-content .ant-tabs-nav {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+/* ── 글자 크기 조절 플로팅 컨트롤 (우측 하단) ── */
+.font-control {
+  position: fixed;
+  bottom: 16px;
+  /* 480px 앱 컬럼 안쪽 우측에 붙이기 */
+  right: max(12px, calc(50vw - 240px + 12px));
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.font-control-fab {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  background: #fa8c16;
+  color: #fff;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0;
+  padding-top: 11px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.font-control-fab:hover {
+  background: #d46b08;
+  transform: scale(1.06);
+}
+
+.font-control-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 44px;
+  padding: 8px 0 6px;
+  background: #fff;
+  border-radius: 22px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.22);
+}
+
+.font-control-panel .ant-slider-vertical {
+  padding: 0;
+}
+
+.font-control-step {
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 50%;
+  background: #fff7e6;
+  color: #d46b08;
+  font-size: 14px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.font-control-step:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.font-control-level {
+  min-width: 44px;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  font-weight: 700;
+  color: #d46b08;
+  cursor: pointer;
 }
 
 /* ── Footer ── */
@@ -113,7 +292,7 @@ body {
 /* ── Page Layout (Common) ── */
 .page-layout-container {
   width: 100%;
-  min-height: calc(100vh - 200px);
+  min-height: calc((100vh - 200px) / var(--font-zoom, 1));
 }
 
 .page-layout-header {

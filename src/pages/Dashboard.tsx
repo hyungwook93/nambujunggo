@@ -14,6 +14,7 @@ import {
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
+import { usedTypeFromCategoryCode } from '../lib/usedType';
 
 const { Title, Text } = Typography;
 
@@ -69,7 +70,7 @@ export default function Dashboard({ mainMenus }: DashboardProps) {
     // 1. status != 'D' 인 최근 4개 제품 조회 (used_seq 내림차순)
     const { data: products, error: prodErr } = await supabase
       .from('used_product')
-      .select('used_seq, title, status')
+      .select('used_seq, title, status, category_code')
       .neq('status', 'D')
       .order('used_seq', { ascending: false })
       .limit(4);
@@ -142,7 +143,7 @@ export default function Dashboard({ mainMenus }: DashboardProps) {
                     <div
                       key={slide.img_seq}
                       className="carousel-slide carousel-slide-clickable"
-                      onClick={() => navigate(`/used/sell/${slide.used_seq}`)}
+                      onClick={() => navigate(`/used/${usedTypeFromCategoryCode(slide.used_product?.category_code)}/${slide.used_seq}`)}
                     >
                       <img
                         src={slide.image_url}
@@ -171,9 +172,9 @@ export default function Dashboard({ mainMenus }: DashboardProps) {
 
       {/* 하단 바로가기 카드 (show_on_main=true 메뉴들) */}
       {mainMenus.length > 0 && (
-        <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
+        <Row gutter={[10, 10]} style={{ marginTop: 12 }}>
           {mainMenus.map((menu: any, idx: number) => (
-            <Col key={menu.id} xs={24} sm={12}>
+            <Col key={menu.id} xs={12} sm={12}>
               <Card
                 className="grid-card"
                 hoverable
@@ -188,10 +189,10 @@ export default function Dashboard({ mainMenus }: DashboardProps) {
                   <span className="grid-card-icon">
                     {getMenuIcon(menu.name, menu.path)}
                   </span>
-                  <Title level={5} style={{ margin: 0 }}>
+                  <Title level={5} className="grid-card-title" style={{ margin: 0 }}>
                     {menu.name}
                   </Title>
-                  <Text type="secondary" style={{ fontSize: 12 }}>
+                  <Text type="secondary" className="grid-card-sub">
                     바로가기
                   </Text>
                 </div>
